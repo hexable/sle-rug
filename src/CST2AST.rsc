@@ -18,23 +18,64 @@ import String;
 
 AForm cst2ast(start[Form] sf) {
   Form f = sf.top; // remove layout before and after form
-  return form("", [], src=f@\loc); 
+  if((Form) `form <Id id> { <Question* questions> }` := f) {
+  	return form("<id>", [cst2ast(q) | q <- questions], src=f@\loc);
+  }
 }
 
 AQuestion cst2ast(Question q) {
-  throw "Not yet implemented";
+  switch(q) {
+    case (Question) `<Str questionString> <Id questionID> : <Type answerType> = <Expr answerExpr>`:
+  	  return question("<questionString>", cst2ast(questionID), cst2ast(answerType), [cst2ast(answerExpr)]);
+  	
+  	case (Question) `<Str questionString> <Id questionID> : <Type answerType>`:
+  	  return question("<questionString>", cst2ast(questionID), cst2ast(answerType), []);
+  	    	  
+  	case (Question) `if ( <Expr ifExpr> ) <Question ifQuestion>`:
+  	  return question(cst2ast(ifExpr), cst2ast(ifQuestion), []);
+  	  
+  	case (Question) `if ( <Expr ifExpr> ) <Question ifQuestion> else <Question elseQuestion>`:
+  	  return question(cst2ast(ifExpr), cst2ast(ifQuestion), [cst2ast(elseQuestion)]);
+  	    	  
+  	case (Question) `{ <Question* blockQuestions> }`:
+  	  return question([cst2ast(qq) | qq <- blockQuestions]);
+  }
 }
 
 AExpr cst2ast(Expr e) {
   switch (e) {
-    case (Expr)`<Id x>`: return ref("<x>", src=x@\loc);
-    
-    // etc.
+    case (Expr)`<Id x>`: return ref("<x>", x@\loc);
+    case (Expr)`<Int x>`: return \int(toInt("<x>"));
+    case (Expr)`<Str s>`: return \str("<s>");
+    case (Expr)`<Bool b>`: return \bool("<b>" == "true");
+    case (Expr)`( <Expr parenthExp> )`: return expr(cst2ast(parenthExp));
+    case (Expr)`! <Expr notExp>`: return notExpr(cst2ast(notExp));
+    case (Expr)`<Expr leftExpr> * <Expr rightExpr>`: return mult(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> / <Expr rightExpr>`: return div(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> % <Expr rightExpr>`: return \mod(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> + <Expr rightExpr>`: return add(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> - <Expr rightExpr>`: return sub(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> \< <Expr rightExpr>`: return lessThan(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> \<= <Expr rightExpr>`: return leq(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> \> <Expr rightExpr>`: return greaterThan(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> \>= <Expr rightExpr>`: return greq(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> != <Expr rightExpr>`: return notEqual(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> == <Expr rightExpr>`: return equals(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> && <Expr rightExpr>`: return land(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Expr leftExpr> || <Expr rightExpr>`: return lor(cst2ast(leftExpr), cst2ast(rightExpr));
     
     default: throw "Unhandled expression: <e>";
   }
 }
 
 AType cst2ast(Type t) {
-  throw "Not yet implemented";
+  switch(t) {
+  	case (Type)`boolean`: return booleanType();
+  	case (Type)`integer`: return integerType();
+  	case (Type)`string`: return stringType();
+  }
+}
+
+AId cst2ast(Id x) {
+  return questionID("<x>", x@\loc);
 }

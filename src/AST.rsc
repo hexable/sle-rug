@@ -12,13 +12,38 @@ data AForm(loc src = |tmp:///|)
   ; 
 
 data AQuestion(loc src = |tmp:///|)
+  = question(str questionString, AId questionID, AType answerType, list[AExpr] answerExpressions)
+  | question(AExpr ifCondition, AQuestion ifTrueQuestion, list[AQuestion] elseQuestions)
+  | question(list[AQuestion] blockQuestions)
   ; 
 
 data AExpr(loc src = |tmp:///|)
-  = ref(AId id)
+  = ref(str id, loc src)
+  | \int(int exprInt)
+  | \str(str exprStr)
+  | \bool(bool exprBool)
+  | expr(AExpr expr)
+  | notExpr(AExpr expr)
+  | mult(AExpr leftExpr, AExpr rightExpr)
+  | div(AExpr leftExpr, AExpr rightExpr)
+  | \mod(AExpr leftExpr, AExpr rightExpr)
+  | add(AExpr leftExpr, AExpr rightExpr)
+  | sub(AExpr leftExpr, AExpr rightExpr)
+  | lessThan(AExpr leftExpr, AExpr rightExpr)
+  | leq(AExpr leftExpr, AExpr rightExpr)
+  | greaterThan(AExpr leftExpr, AExpr rightExpr)
+  | greq(AExpr leftExpr, AExpr rightExpr)
+  | notEqual(AExpr leftExpr, AExpr rightExpr)
+  | equals(AExpr leftExpr, AExpr rightExpr)
+  | land(AExpr leftExpr, AExpr rightExpr)
+  | lor(AExpr leftExpr, AExpr rightExpr)
   ;
 
-data AId(loc src = |tmp:///|)
-  = id(str name);
+data AType(loc src = |tmp:///|)
+  = booleanType()
+  | integerType()
+  | stringType()
+;
 
-data AType(loc src = |tmp:///|);
+data AId(loc src = |tmp:///|)
+  = questionID(str name, loc src);

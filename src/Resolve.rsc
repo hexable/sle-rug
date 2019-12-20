@@ -27,7 +27,7 @@ RefGraph resolve(AForm f) = <us, ds, us o ds>
 
 // return the use occurences of names in a form
 Use uses(AForm f) {
-  return {<src, id> | /ref(str id, loc src) := f}; 
+  return {<id.src, id.name> | /ref(AId id) := f}; 
 }
 
 // return the declarations of names

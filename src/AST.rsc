@@ -18,7 +18,7 @@ data AQuestion(loc src = |tmp:///|)
   ; 
 
 data AExpr(loc src = |tmp:///|)
-  = ref(str id, loc src)
+  = ref(AId id)
   | \int(int exprInt)
   | \str(str exprStr)
   | \bool(bool exprBool)
@@ -46,4 +46,4 @@ data AType(loc src = |tmp:///|)
 ;
 
 data AId(loc src = |tmp:///|)
-  = questionID(str name, loc src);
+  = questionID(str name);

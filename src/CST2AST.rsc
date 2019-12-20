@@ -44,7 +44,7 @@ AQuestion cst2ast(Question q) {
 
 AExpr cst2ast(Expr e) {
   switch (e) {
-    case (Expr)`<Id x>`: return ref("<x>", x@\loc);
+    case (Expr)`<Id x>`: return ref(questionID("<x>", src=x@\loc), src = x@\loc);
     case (Expr)`<Int x>`: return \int(toInt("<x>"));
     case (Expr)`<Str s>`: return \str("<s>");
     case (Expr)`<Bool b>`: return \bool("<b>" == "true");
@@ -77,5 +77,5 @@ AType cst2ast(Type t) {
 }
 
 AId cst2ast(Id x) {
-  return questionID("<x>", x@\loc);
+  return questionID("<x>", src=x@\loc);
 }

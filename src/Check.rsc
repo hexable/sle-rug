@@ -77,28 +77,30 @@ set[Message] check(question(str questionString, AId questionID, AType answerType
         msgs += { warning("Duplicate identifier declared", d.def)};
         
         if(d.\type != questionType) {
-          msgs += { error("Qestion declared again with different type", d.def)};
+          msgs += { error("Question declared again with different type", d.def)};
         }
       }
     }
   
   expectedType = interpretType(answerType);
   if(!isEmpty(answerExpressions) && !(expectedType == typeOf(answerExpressions[0], tenv, useDef))) {
-    msgs += { error("Question answer type is not equal to the answer expression type")};
+    msgs += { error("Expected answer type is not equal to the type of the given answer expression", answerExpressions[0].src)};
   }
   
   return msgs;
 }
 
 set[Message] check(question(AExpr ifCondition, AQuestion ifTrueQuestion, list[AQuestion] elseQuestions), TEnv tenv, UseDef useDef) {
-  set[Message] msgs = {};
-
-  return msgs;
+  return check(ifCondition, tenv, useDef) + check(ifTrueQuestion, tenv, useDef) + check(question(elseQuestions), tenv, useDef);
 }
 
 set[Message] check(question(list[AQuestion] blockQuestions), TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
 
+  for(q <- blockQuestions) {
+    msgs += check(q, tenv, useDef);
+  }
+  
   return msgs;
 }
 
@@ -107,14 +109,50 @@ set[Message] check(question(list[AQuestion] blockQuestions), TEnv tenv, UseDef u
 //   the requirement is that typeOf(lhs) == typeOf(rhs) == tint()
 set[Message] check(AExpr e, TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
-  /*
+  
   switch (e) {
     case ref(str x, src = loc u):
       msgs += { error("Undeclared question", u) | useDef[u] == {} };
 
-    // etc.
-  }
-  */
+	case mult(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };
+  
+    case div(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+    
+    case \mod(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };
+      
+    case add(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+    
+    case sub(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+    
+    case lessThan(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+    
+    case leq(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+    
+    case greaterThan(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+    
+    case greq(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+    
+    case notEqual(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+    
+    case equals(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };      
+
+    case land(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };
+	        
+    case lor(AExpr leftExpr, AExpr rightExpr):
+	  msgs += check(leftExpr, tenv, useDef) + check(rightExpr, tenv, useDef) + { error("Left expression is of different type than right expression", leftExpr.src) | typeOf(leftExpr, tenv, useDef) != typeOf(rightExpr, tenv, useDef) };  }
+  
   return msgs; 
 }
 
@@ -124,7 +162,62 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
       if (<u, loc d> <- useDef, <d, x, _, Type t> <- tenv) {
         return t;
       }
-    // etc.
+
+	case \int(int exprInt):
+	  return tint();
+	  
+	case \str(str exprStr):
+	  return tstr();
+	  
+	case \bool(bool exprBool):
+  	  return tbool();
+  	  
+    case notExpr(AExpr expr):
+      if(typeOf(expr, tenv, useDef) == tbool()) {
+        return tbool();
+      } else {
+      	return tunknown();
+      }
+      
+    case mult(AExpr leftExpr, AExpr rightExpr): {
+      println("Here");
+      return (((typeOf(leftExpr) == tint()) && (typeOf(rightExpr()) == tint())) ? tint() : tunknown());
+      }
+    case div(AExpr leftExpr, AExpr rightExpr):
+      return tint();
+      
+    case \mod(AExpr leftExpr, AExpr rightExpr):
+      return tint();
+      
+    case add(AExpr leftExpr, AExpr rightExpr):
+      return tint();
+      
+    case sub(AExpr leftExpr, AExpr rightExpr):
+      return tint();
+      
+    case lessThan(AExpr leftExpr, AExpr rightExpr):
+      return tbool();
+      
+    case leq(AExpr leftExpr, AExpr rightExpr):
+      return tbool();
+      
+    case greaterThan(AExpr leftExpr, AExpr rightExpr):
+      return tbool();
+      
+    case greq(AExpr leftExpr, AExpr rightExpr):
+      return tbool();
+      
+    case notEqual(AExpr leftExpr, AExpr rightExpr):
+      return tbool();
+      
+    case equals(AExpr leftExpr, AExpr rightExpr):
+      return tbool();
+      
+    case land(AExpr leftExpr, AExpr rightExpr):
+      return tbool();
+      
+    case lor(AExpr leftExpr, AExpr rightExpr):
+      return tbool();
   }
 
   return tunknown(); 

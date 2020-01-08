@@ -26,16 +26,16 @@ AForm cst2ast(start[Form] sf) {
 AQuestion cst2ast(Question q) {
   switch(q) {
     case (Question) `<Str questionString> <Id questionID> : <Type answerType> = <Expr answerExpr>`:
-  	  return question("<questionString>", cst2ast(questionID), cst2ast(answerType), [cst2ast(answerExpr)]);
+  	  return question("<questionString>", cst2ast(questionID), cst2ast(answerType), [cst2ast(answerExpr)], src=questionString@\loc);
   	
   	case (Question) `<Str questionString> <Id questionID> : <Type answerType>`:
-  	  return question("<questionString>", cst2ast(questionID), cst2ast(answerType), []);
+  	  return question("<questionString>", cst2ast(questionID), cst2ast(answerType), [], src=questionString@\loc);
   	    	  
   	case (Question) `if ( <Expr ifExpr> ) <Question ifQuestion>`:
-  	  return question(cst2ast(ifExpr), cst2ast(ifQuestion), []);
+  	  return question(cst2ast(ifExpr), cst2ast(ifQuestion), [], src=ifExpr@\loc);
   	  
   	case (Question) `if ( <Expr ifExpr> ) <Question ifQuestion> else <Question elseQuestion>`:
-  	  return question(cst2ast(ifExpr), cst2ast(ifQuestion), [cst2ast(elseQuestion)]);
+  	  return question(cst2ast(ifExpr), cst2ast(ifQuestion), [cst2ast(elseQuestion)], src=ifExpr@\loc);
   	    	  
   	case (Question) `{ <Question* blockQuestions> }`:
   	  return question([cst2ast(qq) | qq <- blockQuestions]);
@@ -45,24 +45,24 @@ AQuestion cst2ast(Question q) {
 AExpr cst2ast(Expr e) {
   switch (e) {
     case (Expr)`<Id x>`: return ref(questionID("<x>", src=x@\loc), src = x@\loc);
-    case (Expr)`<Int x>`: return \int(toInt("<x>"));
-    case (Expr)`<Str s>`: return \str("<s>");
-    case (Expr)`<Bool b>`: return \bool("<b>" == "true");
-    case (Expr)`( <Expr parenthExp> )`: return expr(cst2ast(parenthExp));
-    case (Expr)`! <Expr notExp>`: return notExpr(cst2ast(notExp));
-    case (Expr)`<Expr leftExpr> * <Expr rightExpr>`: return mult(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> / <Expr rightExpr>`: return div(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> % <Expr rightExpr>`: return \mod(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> + <Expr rightExpr>`: return add(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> - <Expr rightExpr>`: return sub(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> \< <Expr rightExpr>`: return lessThan(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> \<= <Expr rightExpr>`: return leq(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> \> <Expr rightExpr>`: return greaterThan(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> \>= <Expr rightExpr>`: return greq(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> != <Expr rightExpr>`: return notEqual(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> == <Expr rightExpr>`: return equals(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> && <Expr rightExpr>`: return land(cst2ast(leftExpr), cst2ast(rightExpr));
-    case (Expr)`<Expr leftExpr> || <Expr rightExpr>`: return lor(cst2ast(leftExpr), cst2ast(rightExpr));
+    case (Expr)`<Int x>`: return \int(toInt("<x>"), src=x@\loc);
+    case (Expr)`<Str s>`: return \str("<s>", src=s@\loc);
+    case (Expr)`<Bool b>`: return \bool("<b>" == "true", src=b@\loc);
+    case (Expr)`( <Expr parenthExp> )`: return expr(cst2ast(parenthExp, src=parenthExp@\loc), src=parenthExp@\loc);
+    case (Expr)`! <Expr notExp>`: return notExpr(cst2ast(notExp), src=notExp@\loc);
+    case (Expr)`<Expr leftExpr> * <Expr rightExpr>`: return mult(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> / <Expr rightExpr>`: return div(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> % <Expr rightExpr>`: return \mod(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> + <Expr rightExpr>`: return add(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> - <Expr rightExpr>`: return sub(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> \< <Expr rightExpr>`: return lessThan(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> \<= <Expr rightExpr>`: return leq(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> \> <Expr rightExpr>`: return greaterThan(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> \>= <Expr rightExpr>`: return greq(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> != <Expr rightExpr>`: return notEqual(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> == <Expr rightExpr>`: return equals(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> && <Expr rightExpr>`: return land(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
+    case (Expr)`<Expr leftExpr> || <Expr rightExpr>`: return lor(cst2ast(leftExpr, src=leftExpr@\loc), cst2ast(rightExpr, src=rightExpr@\loc), src=leftExpr@\loc);
     
     default: throw "Unhandled expression: <e>";
   }

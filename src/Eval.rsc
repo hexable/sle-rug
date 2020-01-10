@@ -17,6 +17,10 @@ data Value
   | vstr(str s)
   ;
 
+Value toValue(booleanType()) = vbool(false);
+Value toValue(integerType()) = vint(0);
+Value toValue(stringType()) = vstr("");
+
 // The value environment
 alias VEnv = map[str name, Value \value];
 
@@ -24,12 +28,11 @@ alias VEnv = map[str name, Value \value];
 data Input
   = input(str question, Value \value);
   
+alias TestInput = list[Input];
+  
 // produce an environment which for each question has a default value
 // (e.g. 0 for int, "" for str etc.)
-VEnv initialEnv(AForm f) {
-  return ();
-}
-
+VEnv initialEnv(AForm f) = ( name : toValue(answerType) | /question(_, questionID(str name), AType answerType, _) <- f);
 
 // Because of out-of-order use and declaration of questions
 // we use the solve primitive in Rascal to find the fixpoint of venv.
@@ -40,13 +43,15 @@ VEnv eval(AForm f, Input inp, VEnv venv) {
 }
 
 VEnv evalOnce(AForm f, Input inp, VEnv venv) {
-  return (); 
+  
+  return venv;
 }
 
-VEnv eval(AQuestion q, Input inp, VEnv venv) {
   // evaluate conditions for branching,
   // evaluate inp and computed questions to return updated VEnv
-  return (); 
+VEnv eval(question(_, questionID(str name), _, _), Input inp, VEnv venv) {
+	
+	return venv;
 }
 
 Value eval(AExpr e, VEnv venv) {

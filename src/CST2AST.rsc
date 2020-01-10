@@ -32,13 +32,13 @@ AQuestion cst2ast(Question q) {
   	  return question("<questionString>", cst2ast(questionID), cst2ast(answerType), [], src=questionString@\loc);
   	    	  
   	case (Question) `if ( <Expr ifExpr> ) <Question ifQuestion>`:
-  	  return question(cst2ast(ifExpr), cst2ast(ifQuestion), [], src=ifExpr@\loc);
+  	  return \if(cst2ast(ifExpr), cst2ast(ifQuestion), [], src=ifExpr@\loc);
   	  
   	case (Question) `if ( <Expr ifExpr> ) <Question ifQuestion> else <Question elseQuestion>`:
-  	  return question(cst2ast(ifExpr), cst2ast(ifQuestion), [cst2ast(elseQuestion)], src=ifExpr@\loc);
+  	  return \if(cst2ast(ifExpr), cst2ast(ifQuestion), [cst2ast(elseQuestion)], src=ifExpr@\loc);
   	    	  
   	case (Question) `{ <Question* blockQuestions> }`:
-  	  return question([cst2ast(qq) | qq <- blockQuestions]);
+  	  return block([cst2ast(qq) | qq <- blockQuestions]);
   }
 }
 

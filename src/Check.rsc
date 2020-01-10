@@ -38,9 +38,7 @@ TEnv collect(AForm f) {
 
 set[Message] check(AForm f) {
   graph = resolve(f);
- 
- println(collect(f));
-  
+   
   ud = graph.useDef;
   return check(f, collect(f), ud);
 }
@@ -90,11 +88,11 @@ set[Message] check(question(str questionString, AId questionID, AType answerType
   return msgs;
 }
 
-set[Message] check(question(AExpr ifCondition, AQuestion ifTrueQuestion, list[AQuestion] elseQuestions), TEnv tenv, UseDef useDef) {
-  return check(ifCondition, tenv, useDef) + check(ifTrueQuestion, tenv, useDef) + check(question(elseQuestions), tenv, useDef);
+set[Message] check(\if(AExpr ifCondition, AQuestion ifTrueQuestion, list[AQuestion] elseQuestions), TEnv tenv, UseDef useDef) {
+  return check(ifCondition, tenv, useDef) + check(ifTrueQuestion, tenv, useDef) + check(block(elseQuestions), tenv, useDef);
 }
 
-set[Message] check(question(list[AQuestion] blockQuestions), TEnv tenv, UseDef useDef) {
+set[Message] check(block(list[AQuestion] blockQuestions), TEnv tenv, UseDef useDef) {
   set[Message] msgs = {};
 
   for(q <- blockQuestions) {
@@ -172,6 +170,9 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
 	case \bool(bool exprBool):
   	  return tbool();
   	  
+  	case expr(AExpr expr):
+  		return typeOf(expr, tenv, useDef);
+  		
     case notExpr(AExpr expr):
       if(typeOf(expr, tenv, useDef) == tbool()) {
         return tbool();
@@ -179,10 +180,9 @@ Type typeOf(AExpr e, TEnv tenv, UseDef useDef) {
       	return tunknown();
       }
       
-    case mult(AExpr leftExpr, AExpr rightExpr): {
-      println("Here");
-      return (((typeOf(leftExpr) == tint()) && (typeOf(rightExpr()) == tint())) ? tint() : tunknown());
-      }
+    case mult(AExpr leftExpr, AExpr rightExpr):
+      return (((typeOf(leftExpr, tenv, useDef) == tint()) && (typeOf(rightExpr, tenv, useDef) == tint())) ? tint() : tunknown());
+      
     case div(AExpr leftExpr, AExpr rightExpr):
       return tint();
       

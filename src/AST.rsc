@@ -13,8 +13,8 @@ data AForm(loc src = |tmp:///|)
 
 data AQuestion(loc src = |tmp:///|)
   = question(str questionString, AId questionID, AType answerType, list[AExpr] answerExpressions)
-  | question(AExpr ifCondition, AQuestion ifTrueQuestion, list[AQuestion] elseQuestions)
-  | question(list[AQuestion] blockQuestions)
+  | \if(AExpr ifCondition, AQuestion ifTrueQuestion, list[AQuestion] elseQuestions)
+  | block(list[AQuestion] blockQuestions)
   ; 
 
 data AExpr(loc src = |tmp:///|)

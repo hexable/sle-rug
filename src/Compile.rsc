@@ -53,7 +53,16 @@ HTML5Node questions2html(AForm f) {
     }
       
     case \if(AExpr ifCondition, AQuestion ifTrueQuestion, list[AQuestion] elseQuestions):
-      ;
+      questions += div(
+        	questionString[1..-1],
+        	br(),
+        	input(
+        		id("question_<questionID.name>_<questionID.src.begin.line>_<questionID.src.begin.column>"),
+        		oninput("console.log($(\'#question_<questionID.name>_<questionID.src.begin.line>_<questionID.src.begin.column>\').val())"),
+        		\type("text")
+        	)
+        	
+        );
   }
   
   return form(questions);

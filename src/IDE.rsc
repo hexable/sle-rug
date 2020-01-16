@@ -4,10 +4,13 @@ import Syntax;
 import AST;
 import CST2AST;
 import Resolve;
+import IO;
 import Check;
 import Compile;
+import Transform;
 
 import util::IDE;
+import util::Prompt;
 import Message;
 import ParseTree;
 
@@ -43,8 +46,22 @@ void main() {
         return msgs;
       }
       return {error("Not a form", t@\loc)};
-    })
+    }),
+    popup(
+    	edit("Rename...", str (Tree t, loc selection) {
+    		if (start[Form] pt := t) {
+    			loc fullLoc = getFullLoc(pt, selection);
+    			if (fullLoc == |tmp:///|) {
+    				alert("You have not selected a valid id.");
+    				return;
+    			}
+	    		newName = prompt("Enter new name: ");
+	    		t = rename(pt, fullLoc, newName, resolve(cst2ast(pt)));
+    		}
+    		return "<t>";
+    	})
+    )
   };
-  
+
   registerContributions(MyQL, contribs);
 }
